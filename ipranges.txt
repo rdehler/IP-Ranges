@@ -1,0 +1,86 @@
+<script type="text/javascript">
+var startingPoint = 0;
+var IP_MAX = 255;
+
+function loadIframes() {
+    var a = startingPoint;
+    var docHTML = "<table class=\"list\" cellspacing=\"0\" border=\"0\" cellpadding=\"4\">";
+    docHTML += "<tr class=\"headerRow\">";
+    docHTML += "<th>IP Start</th>";
+    docHTML += "<th>IP End</th>";
+    docHTML += "<th>Status</th>";	
+    docHTML += "<th>(iframe loads here)</th>";
+    docHTML += "</tr>";
+    while (a<=IP_MAX) {
+        docHTML += "<tr>";
+        
+        docHTML += "<td>"+a+".0.0.0</td>";
+        docHTML += "<td>"+(a+1)+".255.255.255</td>";
+        docHTML += "<td id=\"iframe"+a+"_Updated\">Loading...</td>";
+        docHTML += "<td><iframe onload=\"parent.document.getElementById(this.name+'_Updated').innerHTML = 'iframe Loaded.';\" id=\"iframe"+a+"\" name=\"iframe"+a+"\" src=\"/05G/e?retURL=%2F05G&IpStartAddress="+a+".0.0.0&IpEndAddress="+(a+1)+".255.255.255&save=1\" width=\"0\" height=\"0\"  frameborder=\"0\"></iframe></td>";
+        docHTML += "</tr>";
+        a = a+2;
+    }
+    docHTML += "</table>";
+    document.getElementById("output").innerHTML = docHTML;
+}
+
+function saveIPs() {
+    saveIP(startingPoint);
+}
+function saveIP(ip) {
+        var frame = document.getElementById("iframe"+ip);
+        document.getElementById('iframe'+ip+'_Updated').innerHTML = "Saving IP Range...";
+        var insideFrame = frame.contentWindow;
+        var confirmationKeyElement = insideFrame.document.getElementById("_CONFIRMATIONTOKEN");
+        if (confirmationKeyElement != null) {
+            frame.onload="";
+            var confirmationKey = confirmationKeyElement.value;
+            insideFrame.document.location.href = insideFrame.document.location.href+"&_CONFIRMATIONTOKEN="+confirmationKey;
+            document.getElementById("iframe"+ip+"_Updated").innerHTML = 'Completed.';
+        } else {
+            document.getElementById("iframe"+ip+"_Updated").innerHTML = 'Failed.';
+        }
+
+        if (ip <= IP_MAX-2) {
+            setTimeout("saveIP("+(ip+2)+")", 1000);
+        }
+}
+</script>
+
+<div class="bRelatedList">
+<div class="bPageBlock secondaryPalette homeBlock">
+<div class="pbHeader">
+<table border="0" cellpadding="0" cellspacing="0"><tr><td class="pbTitle"><h3>Add All IP Ranges</h3></td><td class="pbButton"><input type="button" class="btn" value="Load iFrames" onclick="alert('Beginning iframe loading.  Please be patient.  Once the page finishes loading, click the Save IPs button.'); loadIframes();" /> 
+<input type="button" class="btn" value="Save IPs" onclick="alert('Saving IPs...'); saveIPs();" />
+</td></tr></table>
+</div>
+<div class="pbBody">
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td width="100%">
+<p>
+In order to <a href="http://raydehler.com/cloud/clod/enable-all-trusted-ip-ranges-for-a-salesforce-org.html" target="_new">Enable All Trusted IP Ranges for this Salesforce Org</a>, click the "Load iFrames" button below, wait for all IP ranges to switch to "iframe Loaded.", then click the "Save IPs" button.
+</p>
+<p>
+Load iFrames will:
+<ol>
+<li>Load 128 iFrames, for 0.0.0.0-1.255.255.255, 2.0.0.0-3.255.255.255, etc. (this is the maximum range allowable).</li>
+<li>Update the status from "Loaded..." to "iframe Loaded."</li>
+</ol>
+Save IPs will:
+<ol>
+<li>For each of the 128 iFrames, the CONFIRMATIONTOKEN will be pulled from the DOM.</li>
+<li>The iFrame will save the new IP Range.</li>
+<li>The status will be updated to "Completed.", unless there is an error.</li>
+</ol>
+</p>
+<p>
+Upon completion, head over to <a href="/05G">Setup => Security Controls => Network Access</a> to confirm it worked successfully.  Once confirmed, feel free to uninstall this package.
+<p>
+Comments or bug reports?  Please feel free <a href"http://raydehler.com/cloud/clod/enable-all-trusted-ip-ranges-for-a-salesforce-org.html">send me a message</a>.
+</p>
+</td></tr>
+<tr><td id="output"></td></tr>
+</table>
+<div class="pbFooter"><div class="bg"></div></div>
+</div>
+</div>
