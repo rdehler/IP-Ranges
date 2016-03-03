@@ -1,5 +1,4 @@
-Enable all IP Ranges for a Salesforce Org:
+NOTE
 
-http://raydehler.com/cloud/clod/enable-all-trusted-ip-ranges-for-a-salesforce-org.html
-
-This is meant to be installed as an unmanaged package in Salesforce.  Source for this package is included as ipranges.txt.
+This repository is retired, please use this instead:
+https://github.com/rdehler/sfdc-whitelist-ips-chrome
